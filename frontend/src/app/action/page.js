@@ -1,9 +1,14 @@
 'use client';
 import { socket } from '@/socket';
-import { Card, CardBody } from '@nextui-org/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Card, CardBody, Progress, Avatar, uRating } from '@nextui-org/react';
+import { motion } from 'framer-motion';
+import { IconCheck, IconX,  } from '@tabler/icons-react';
+import { AiOutlineOrderedList, AiOutlineEye } from 'react-icons/ai';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const prompts = [
   {
@@ -47,48 +52,140 @@ export default function ActionPage({
   }, []);
 
   return (
-    <div className="flex flex-1 justify-center">
-      <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
+    <>
+      <div className="min-h-full">
+        <header className="bg-gradient-to-r from-blue-500 to-purple-500 py-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Image src="/logo.png" alt="Logo" width={40} height={40} />
+              <h1 className="text-3xl font-bold tracking-tight text-white">Action Genie</h1>
+            </div>
+            <Button size="sm" color="white" auto>
+              Search Actions
+            </Button>
+          </div>
+        </header>
 
-      <div className="flex flex-1 flex-row justify-center">
-        <Card shadow>
-          <CardBody>
-            {prompts.map((prompt, i) => (
-              <div className="flex flex-row items-center justify-between">
-                <div
-                  key={i}
-                  className="flex flex-1 flex-row items-center mt-4 bg-slate-100 p-6">
-                  {/* circle with index in the middle */}
-                  <div className="flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full mr-4">
-                    <div className="text-lg font-bold text-white">{i + 1}</div>
+        <main>
+          <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
+        <CardBody>
+          <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+            <AiOutlineOrderedList className="text-blue-500" />
+            <span>Workflow Steps</span>
+          </h2>
+          <div className='flex flex-col space-between'>
+
+                <WorkflowStep title="Navigate to https://huggingface.co/docs" isLoading={false} isCompleted={completedCount > 0} />
+                <WorkflowStep title="Command: Start the quicktour of PEFT" isLoading={false} isCompleted={completedCount > 1} />
+                <WorkflowStep title="Command: Do another tour" isLoading={completedCount < 2} isCompleted={completedCount > 2} />
+          </div>
+              </CardBody>
+            </Card>
+
+            <Card className="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
+              <CardBody>
+                <h2 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+                  <AiOutlineEye className="text-blue-500" />
+                  <span>Live Preview</span>
+                </h2>
+                <div className="rounded-lg shadow-md overflow-hidden">
+                  <WorkflowPreview />
+                </div>
+              </CardBody>
+
+              <CardBody>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Estimated Time:</p>
+                    <p className="text-sm text-gray-500">2 minutes</p>
                   </div>
-                  {prompt.type === 'url' ? (
-                    <div className="flex flex-col items-center">
-                      <div className="text-lg">Navigate to {prompt.value}</div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <div className="text-lg">Command: {prompt.value}</div>
-                    </div>
-                  )}
-
-                  {/* green completed check icon */}
-                  <div className="flex items-center justify-center w-12 h-12 bg-green-500 rounded-full ml-4">
-                    <div className="text-lg font-bold text-white">✓</div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Price:</p>
+                    <p className="text-sm text-gray-500">$0.50</p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </CardBody>
-        </Card>
 
-        <div className="flex flex-col items-center justify-center h-200 w-200">
-          <text h2>Live Preview</text>
-          {image && (
-            <img src={image} alt="Live Preview" width={400} height={400} />
-          )}
+                <Progress className="my-4" size="sm" value={75} />
+
+              </CardBody>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </>
+  );
+}
+
+const WorkflowStep = ({ title, isLoading, isCompleted }) => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.5 }}
+      className="flex items-center space-x-4"
+    >
+      <Skeleton className="h-4 w-4 rounded-full" show={isLoading}>
+        {isCompleted && (
+          <motion.div
+            initial={{ scale: 0 }} 
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex items-center justify-center h-4 w-4 bg-green-500 text-white rounded-full"
+          >
+            <IconCheck size={16} />
+          </motion.div>
+        )}
+      </Skeleton>
+      <p className={`text-sm ${isCompleted ? 'text-green-500' : 'text-gray-500'}`}>{title}</p>
+    </motion.div>
+  )
+}
+
+const WorkflowPreview = () => {
+  return (
+    <Card className="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
+      <Skeleton className="h-4 w-full mb-2" show={true} />
+      <Skeleton className="h-4 w-2/3" show={true} />
+      <Skeleton className="h-4 w-1/2 mt-2" show={true} />
+    </Card>
+  )
+}
+
+const StarRating = ({ value }) => {
+  return (
+    <div className="flex items-center">
+      {[...Array(5)].map((_, i) => (
+        <svg
+          key={i}
+          className={`w-4 h-4 ${i < value ? 'text-yellow-400' : 'text-gray-300'}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+      ))}
+    </div>
+  );
+};
+
+const ActionWorkflow = () => {
+  return (
+    <div className="flex space-x-8">
+      <div className="flex flex-col space-y-4">
+        <h2 className="text-xl font-semibold mb-4">Workflow Steps</h2>
+        <Card className="p-4 rounded-lg shadow-md bg-white dark:bg-gray-800">
+          <WorkflowStep title="Navigate to https://huggingface.co/docs" isLoading={false} isCompleted={true} />
+          <WorkflowStep title="Command: Start the quicktour of PEFT" isLoading={false} isCompleted={true} />
+          <WorkflowStep title="Command: Do another tour" isLoading={true} isCompleted={false} />
+        </Card>
+      </div>
+      <div className="flex-1">
+        <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
+        <div className="rounded-lg shadow-md overflow-hidden">
+          <WorkflowPreview />
         </div>
       </div>
     </div>
   );
-}
+};
