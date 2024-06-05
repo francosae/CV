@@ -9,8 +9,13 @@ import {
   IconFileBroken,
   IconSignature,
   IconTableColumn,
+    IconPhotoPlus,
+    IconLanguage,
+    IconTextWrap,
+
 } from "@tabler/icons-react";
 import { motion } from "framer-motion";
+import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, RadioGroup, Radio} from "@nextui-org/react";
 
 
 export function PageGrid() {
@@ -29,7 +34,6 @@ export function PageGrid() {
       </Grid>
     );
   }
-
 
 
 const Skeleton = () => (
@@ -301,51 +305,133 @@ const SkeletonFive = () => {
     </motion.div>
   );
 };
+
+const SkeletonSix = () => {
+    const cardVariants = {
+      initial: { opacity: 0, scale: 0.8 },
+      animate: { opacity: 1, scale: 1 },
+    };
+  
+    return (
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={cardVariants}
+        className="flex flex-col space-y-4 rounded-2xl border border-neutral-100 dark:border-white/[0.2] p-4 bg-white dark:bg-black"
+      >
+        <div className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500" />
+          <div className="h-4 w-1/2 rounded-full bg-gray-100 dark:bg-neutral-900" />  
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 w-full rounded-full bg-gray-100 dark:bg-neutral-900" />
+          <div className="h-4 w-4/5 rounded-full bg-gray-100 dark:bg-neutral-900" />
+        </div>
+      </motion.div>
+    );
+  };
+
+
+  const SkeletonSeven = () => {
+    const listVariants = {
+      initial: { opacity: 0 },
+      animate: { opacity: 1, transition: { staggerChildren: 0.2 } },
+    };
+  
+    const itemVariants = {
+      initial: { x: -20, opacity: 0 },  
+      animate: { x: 0, opacity: 1 },
+    };
+  
+    return (
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={listVariants}
+        className="flex flex-col space-y-2 rounded-2xl border border-neutral-100 dark:border-white/[0.2] p-4 bg-white dark:bg-black"
+      >
+        <motion.div variants={itemVariants} className="flex justify-between">
+          <div className="h-4 w-1/3 rounded-full bg-gradient-to-r from-yellow-500 to-red-500" />
+          <div className="h-4 w-12 rounded-full bg-gray-100 dark:bg-neutral-900" />
+        </motion.div>
+        {[...Array(4)].map((_, i) => (
+          <motion.div key={i} variants={itemVariants} className="h-4 w-full rounded-full bg-gray-100 dark:bg-neutral-900" />
+        ))}
+      </motion.div>
+    );
+  };
+
+
+
+  const SkeletonEight = () => {
+    const barVariants = {
+      initial: { width: "10%" },
+      animate: { width: "100%", transition: { duration: 2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" } },
+    };
+  
+    return (
+      <div className="flex flex-col space-y-4 rounded-2xl border border-neutral-100 dark:border-white/[0.2] p-4 bg-white dark:bg-black">
+        <div className="flex justify-between">
+          <div className="h-4 w-1/2 rounded-full bg-gray-100 dark:bg-neutral-900" />
+          <div className="h-4 w-8 rounded-full bg-gray-100 dark:bg-neutral-900" /> 
+        </div>
+        <div className="h-2 w-full rounded-full bg-gray-100 dark:bg-neutral-900 overflow-hidden">
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={barVariants} 
+            className="h-full rounded-full bg-gradient-to-r from-green-400 to-blue-500"
+          />
+        </div>
+      </div>
+    );  
+  };
+
 const items = [
-  {
-    title: "AI Content Generation",
-    description: (
-      <span className="text-sm">
-        Experience the power of AI in generating unique content.
-      </span>
-    ),
-    header: <SkeletonOne />,
-    className: "md:col-span-1",
-    icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "Automated Proofreading",
-    description: (
-      <span className="text-sm">
-        Let AI handle the proofreading of your documents.
-      </span>
-    ),
-    header: <SkeletonTwo />,
-    className: "md:col-span-1",
-    icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "Contextual Suggestions",
-    description: (
-      <span className="text-sm">
-        Get AI-powered suggestions based on your writing context.
-      </span>
-    ),
-    header: <SkeletonThree />,
-    className: "md:col-span-1",
-    icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
-  },
-  {
-    title: "Sentiment Analysis",
-    description: (
-      <span className="text-sm">
-        Understand the sentiment of your text with AI analysis.
-      </span>
-    ),
-    header: <SkeletonFour />,
-    className: "md:col-span-2",
-    icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
-  },
+//   {
+//     title: "AI Content Generation",
+//     description: (
+//       <span className="text-sm">
+//         Experience the power of AI in generating unique content.
+//       </span>
+//     ),
+//     header: <SkeletonOne />,
+//     className: "md:col-span-1",
+//     icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
+//   },
+//   {
+//     title: "Automated Proofreading",
+//     description: (
+//       <span className="text-sm">
+//         Let AI handle the proofreading of your documents.
+//       </span>
+//     ),
+//     header: <SkeletonTwo />,
+//     className: "md:col-span-1",
+//     icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
+//   },
+//   {
+//     title: "Contextual Suggestions",
+//     description: (
+//       <span className="text-sm">
+//         Get AI-powered suggestions based on your writing context.
+//       </span>
+//     ),
+//     header: <SkeletonThree />,
+//     className: "md:col-span-1",
+//     icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
+//   },
+//   {
+//     title: "Sentiment Analysis",
+//     description: (
+//       <span className="text-sm">
+//         Understand the sentiment of your text with AI analysis.
+//       </span>
+//     ),
+//     header: <SkeletonFour />,
+//     className: "md:col-span-3",
+//     icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
+//   },
 
   {
     title: "Text Summarization",
@@ -357,6 +443,39 @@ const items = [
     header: <SkeletonFive />,
     className: "md:col-span-1",
     icon: <IconBoxAlignRightFilled className="h-4 w-4 text-neutral-500" />,
+  },
+  {
+    title: "Image Generation",
+    description: (
+      <span className="text-sm">
+        Generate images from textual descriptions using AI.
+      </span>  
+    ),
+    header: <SkeletonSix />,
+    className: "md:col-span-1",
+    icon: <IconPhotoPlus className="h-4 w-4 text-neutral-500" />,
+  },
+  {
+    title: "Language Translation",
+    description: (
+      <span className="text-sm">
+        Translate text between languages with AI-powered accuracy.  
+      </span>
+    ), 
+    header: <SkeletonSeven />,
+    className: "md:col-span-1", 
+    icon: <IconLanguage className="h-4 w-4 text-neutral-500" />,
+  },
+  {
+    title: "Text Completion",
+    description: (
+      <span className="text-sm">  
+        Autocomplete your writing intelligently based on context.
+      </span>
+    ),
+    header: <SkeletonEight />,
+    className: "md:col-span-1",
+    icon: <IconTextWrap className="h-4 w-4 text-neutral-500" />,  
   },
 ];
 
