@@ -7,6 +7,8 @@ import os
 from lavague.core import ActionEngine, WorldModel, WebAgent
 from lavague.drivers.selenium import SeleniumDriver
 from lavague.core import WorldModel
+from openai import OpenAI
+
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -34,89 +36,31 @@ def background_thread():
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
-
 @socketio.event
-def my_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']})
-
-
-@socketio.event
-def my_broadcast_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
-@socketio.event
-def join(message):
-    join_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.event
-def leave(message):
-    leave_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('close_room')
-def on_close_room(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         'count': session['receive_count']},
-         to=message['room'])
-    close_room(message['room'])
-
-
-@socketio.event
-def my_room_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         to=message['room'])
-
-
-@socketio.event
-def disconnect_request():
-    @copy_current_request_context
-    def can_disconnect():
-        disconnect()
-
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    # for this emit we use a callback function
-    # when the callback function is invoked we know that the message has been
-    # received and it is safe to disconnect
-    emit('my_response',
-         {'data': 'Disconnected!', 'count': session['receive_count']},
-         callback=can_disconnect)
-
-
-@socketio.event
-def my_ping():
-    emit('my_pong')
-
-
-@socketio.event
-def connect():
-    global thread
-    with thread_lock:
-        if thread is None:
-            thread = socketio.start_background_task(background_thread)
-    emit('my_response', {'data': 'Connected', 'count': 0})
-
-
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected', request.sid)
+def generate_prompt(message):
+    client = OpenAI(
+        organization=os.environ['OPENAI_ORG'],
+        project='$PROJECT_ID',
+    )
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            # {"role": "system", "content": "You are a ."},
+            {"role": "user", 
+             "content": "You will generate a new series of prompts for a large action model to complete. " +
+             "The prompts will be in the form of a list of dictionaries, where each dictionary has a 'type' key and a 'value' key. " +
+             "The 'type' key will be either 'url' or 'command'. " +
+             "If the 'type' key is 'url', the 'value' key will be a URL to navigate to. " +
+             "If the 'type' key is 'command', the 'value' key will be a command to run. " +
+             "The action model will execute the prompts in order, and return the output of the last command. " +
+             "The action model will be a web agent that can interact with web pages. " +
+             "The goal of the prompts will be: " + message['goal']
+             }
+        
+        ]
+    )
+    
+    return response
 
 @socketio.event
 def ai_event(message):
@@ -140,3 +84,87 @@ def ai_event(message):
 
 if __name__ == '__main__':
     socketio.run(app, port=8000)
+
+# @socketio.event
+# def my_event(message):
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': message['data'], 'count': session['receive_count']})
+
+
+# @socketio.event
+# def my_broadcast_event(message):
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': message['data'], 'count': session['receive_count']},
+#          broadcast=True)
+
+
+# @socketio.event
+# def join(message):
+#     join_room(message['room'])
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': 'In rooms: ' + ', '.join(rooms()),
+#           'count': session['receive_count']})
+
+
+# @socketio.event
+# def leave(message):
+#     leave_room(message['room'])
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': 'In rooms: ' + ', '.join(rooms()),
+#           'count': session['receive_count']})
+
+
+# @socketio.on('close_room')
+# def on_close_room(message):
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
+#                          'count': session['receive_count']},
+#          to=message['room'])
+#     close_room(message['room'])
+
+
+# @socketio.event
+# def my_room_event(message):
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     emit('my_response',
+#          {'data': message['data'], 'count': session['receive_count']},
+#          to=message['room'])
+
+
+# @socketio.event
+# def disconnect_request():
+#     @copy_current_request_context
+#     def can_disconnect():
+#         disconnect()
+
+#     session['receive_count'] = session.get('receive_count', 0) + 1
+#     # for this emit we use a callback function
+#     # when the callback function is invoked we know that the message has been
+#     # received and it is safe to disconnect
+#     emit('my_response',
+#          {'data': 'Disconnected!', 'count': session['receive_count']},
+#          callback=can_disconnect)
+
+
+# @socketio.event
+# def my_ping():
+#     emit('my_pong')
+
+
+# @socketio.event
+# def connect():
+#     global thread
+#     with thread_lock:
+#         if thread is None:
+#             thread = socketio.start_background_task(background_thread)
+#     emit('my_response', {'data': 'Connected', 'count': 0})
+
+
+# @socketio.on('disconnect')
+# def test_disconnect():
+#     print('Client disconnected', request.sid)
+

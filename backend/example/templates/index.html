@@ -65,6 +65,10 @@
                 socket.emit('my_event', {data: $('#emit_data').val()});
                 return false;
             });
+            $('form#req_prompt').submit(function(event) {
+                socket.emit('generate_prompt', {data: $('#req_prompt_data').val()});
+                return false;
+            });
             $('form#ai').submit(function(event) {
                 socket.emit('ai_event', {
                        "prompts": [
@@ -145,6 +149,10 @@
     </form>
     <form id="ai" method="POST" action="#">
         <input type="submit" value="AI">
+    </form>
+    <form id="req_prompt" method="POST" action='#'>
+        <input type="text" name="req_prompt_data" id="req_prompt_data" placeholder="Message">
+        <input type="submit" value="Generate Prompt">
     </form>
     <h2>Receive:</h2>
     <div id="log"></div>
