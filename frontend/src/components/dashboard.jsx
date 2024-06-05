@@ -30,12 +30,12 @@ export default function Dashboard() {
   return (
     <>
       <div className="min-h-full">       
-        <main className="mt-12">
+        <main >
           <div className="mx-auto max-w-5xl px-4 pb-12 sm:px-6 lg:px-8">
-            <div className="rounded-lg bg-gray-90 px-5 py-6 shadow sm:px-6">
+            <div className="rounded-lg bg-gray-90 px-5 shadow sm:px-6">
                     <header className="py-10">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-black">All Actions</h1>
+                    <h1 className="my-0 text-3xl font-bold tracking-tight text-black">All Actions</h1>
                     </div>
                 </header>
 
