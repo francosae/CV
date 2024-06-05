@@ -1,4 +1,6 @@
 from threading import Lock
+import io
+import base64
 from flask import Flask, render_template, session, request, \
     copy_current_request_context
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
@@ -79,8 +81,15 @@ def ai_event(message):
         agent.run(prompt['value'])
         df_logs = agent.logger.return_pandas()
         out = df_logs.iloc[-1]
+        out.to_csv('output.csv')
         print(out)
         emit('output', {'data': "t", 'failed': False, 'completed': i == len(message['prompts']) - 1})
+        image = out['screenshots'][-1]
+        buffered = io.BytesIO()
+        image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+        emit('receive_image', {'image_data': img_str})
 
 if __name__ == '__main__':
     socketio.run(app, port=8000)
