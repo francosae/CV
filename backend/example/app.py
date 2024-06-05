@@ -120,7 +120,6 @@ def test_disconnect():
 
 @socketio.event
 def ai_event(message):
-    os.environ["OPENAI_API_KEY"] = ""
     # Initialize the required objects
     selenium_driver = SeleniumDriver()
     action_engine = ActionEngine(selenium_driver)
@@ -128,14 +127,16 @@ def ai_event(message):
     agent = WebAgent(world_model, action_engine)
     
     # Perform the desired action
-    for prompt in message['prompts']:
+    for i, prompt in enumerate(message['prompts']):
+      emit('output', {'data': "starting prompt"})
       if prompt['type'] == 'url':
         agent.get(prompt['value'])
       elif prompt['type'] == 'command':
         agent.run(prompt['value'])
-        emit('my_response',
-             {'data': message['data'], 'count': session['receive_count']})
-
+        df_logs = agent.logger.return_pandas()
+        out = df_logs.iloc[-1]
+        print(out)
+        emit('output', {'data': "t", 'failed': False, 'completed': i == len(message['prompts']) - 1})
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, port=8000)

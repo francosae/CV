@@ -27,6 +27,12 @@
                 if (cb)
                     cb();
             });
+            socket.on('output', function(msg, cb) {
+                // $('#log').append(JSON.stringify(msg));
+                $('#log').append("response noted");
+                if (cb)
+                    cb();
+            });
 
             // Interval function that tests message latency by sending a "ping"
             // message. The server then responds with a "pong" message and the
@@ -59,6 +65,21 @@
                 socket.emit('my_event', {data: $('#emit_data').val()});
                 return false;
             });
+            $('form#ai').submit(function(event) {
+                socket.emit('ai_event', {
+                       "prompts": [
+                         {
+                              "type": "url",
+                              "value": "https://huggingface.co/docs"
+                         },
+                         {
+                              "type": "command",
+                              "value": "Start the quicktour of PEFT"
+                         }
+                ]});
+                return false;
+            });
+
             $('form#broadcast').submit(function(event) {
                 socket.emit('my_broadcast_event', {data: $('#broadcast_data').val()});
                 return false;
@@ -121,6 +142,9 @@
     </form>
     <form id="disconnect" method="POST" action="#">
         <input type="submit" value="Disconnect">
+    </form>
+    <form id="ai" method="POST" action="#">
+        <input type="submit" value="AI">
     </form>
     <h2>Receive:</h2>
     <div id="log"></div>
