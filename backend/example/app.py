@@ -20,7 +20,7 @@ async_mode = None
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, origins="*")
 socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins="*")
 thread = None
 thread_lock = Lock()
@@ -69,29 +69,37 @@ def generate_prompt(message):
 @socketio.event
 def ai_event(message):
     # Initialize the required objects
-    selenium_driver = SeleniumDriver()
+    selenium_driver = SeleniumDriver(chrome_user_dir="~/Library/Application Support/Google/Chrome/Default", headless=False)
+
     action_engine = ActionEngine(selenium_driver)
     world_model = WorldModel()
     agent = WebAgent(world_model, action_engine)
     
     # Perform the desired action
-    for i, prompt in enumerate(message['prompts']):
-      emit('output', {'data': "starting prompt"})
-      if prompt['type'] == 'url':
-        agent.get(prompt['value'])
-      elif prompt['type'] == 'command':
-        agent.run(prompt['value'])
-        df_logs = agent.logger.return_pandas()
-        out = df_logs.iloc[-1]
-        out.to_csv('output.csv')
-        print(out)
-        emit('output', {'data': "t", 'failed': False, 'completed': i == len(message['prompts']) - 1})
-        image = out['screenshots'][-1]
-        buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    for i in range(3):
+        try:
+            for i, prompt in enumerate(message['prompts']):
+            #   emit('output', {'data': "starting prompt"})
+                if prompt['type'] == 'url':
+                    agent.get(prompt['value'])
+                elif prompt['type'] == 'command':
+                    agent.run(prompt['value'])
+                    df_logs = agent.logger.return_pandas()
+                    out = df_logs.iloc[-1]
+                    out.to_csv('output.csv')
+                    print(out)
+                    # emit('output', {'data': "t", 'failed': False, 'completed': i == len(message['prompts']) - 1})
+                    image = out['screenshots'][-1]
+                    buffered = io.BytesIO()
+                    image.save(buffered, format="PNG")
+                    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                    emit('receive_image', {'image_data': img_str})
+                emit('output', {'i': i, "failed": False, "completed": i == len(message['prompts']) - 1})
+            break
+        except:
+            pass
 
-        emit('receive_image', {'image_data': img_str})
+
 
 if __name__ == '__main__':
     socketio.run(app, port=8000)

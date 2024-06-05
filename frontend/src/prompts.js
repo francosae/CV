@@ -1,4 +1,3 @@
-
 // simulate a backend where prompts are stored based on id
 export const prompts = {
   2: [
@@ -16,22 +15,22 @@ export const prompts = {
     },
   ],
   // order an uber
-  1: (inputs) => ([
+  1: [
     {
       type: 'url',
       value: 'https://uber.com',
     },
     {
       type: 'command',
-      value: 'login to your account',
+      value: 'login to your account, if not already',
     },
     {
       type: 'command',
-      value: 'order a ride to ' + inputs[0],
+      value: 'order a ride to 415 Mission St, San Francisco',
     },
     {
       type: 'command',
-      value: 'choose uberx and leave immediately', 
+      value: 'choose uberx and leave immediately',
     },
-  ])
-}
+  ],
+};
