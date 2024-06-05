@@ -2,6 +2,7 @@
 import Dashboard from "@/components/dashboard";
 import React, { useState, useEffect } from 'react';
 import {socket} from '@/socket';
+import Image from 'next/image';
 
 export default function Page() {
   const [isConnected, setIsConnected] = useState(socket.connected);

@@ -12,6 +12,7 @@ import {
     IconPhotoPlus,
     IconLanguage,
     IconTextWrap,
+    IconCar,
 } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import {
@@ -435,18 +436,71 @@ const SkeletonEight = () => {
     );
 };
 
+const SkeletonUber = () => {
+  const containerVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { staggerChildren: 0.2 } },
+  };
+
+  const carVariants = {
+    initial: { x: "-100%" },
+    animate: {
+      x: "100%",
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: "loop",
+        ease: "linear",
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      initial="initial"
+      animate="animate"
+      variants={containerVariants}
+      className="flex flex-col space-y-4 rounded-2xl border border-neutral-100 dark:border-white/[0.2] p-4 bg-white dark:bg-black overflow-hidden"
+    >
+      <div className="flex justify-between items-center">
+        <div className="h-3 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+        <div className="h-3 w-6 rounded-full bg-gray-100 dark:bg-neutral-900" />
+      </div>
+      <div className="h-2 w-full rounded-full bg-gray-100 dark:bg-neutral-900" />
+      <div className="flex justify-between items-center">
+        <div className="h-2 w-1/3 rounded-full bg-gray-100 dark:bg-neutral-900" />
+        <div className="h-2 w-1/3 rounded-full bg-gray-100 dark:bg-neutral-900" />
+      </div>
+      <div className="relative h-5 w-full rounded-2xl bg-gray-100 dark:bg-neutral-900 overflow-hidden">
+        <motion.div
+          variants={carVariants}
+          className="absolute top-1/2 -translate-y-1/2 left-0 h-6 w-12 rounded-full bg-black dark:bg-white"
+        />
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="h-1 w-20 rounded-full bg-gray-100 dark:bg-neutral-900" />
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="h-1 w-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 cursor-pointer"
+        />
+      </div>
+    </motion.div>
+  );
+};
+
 const items = [
-    //   {
-    //     title: "AI Content Generation",
-    //     description: (
-    //       <span className="text-sm">
-    //         Experience the power of AI in generating unique content.
-    //       </span>
-    //     ),
-    //     header: <SkeletonOne />,
-    //     className: "md:col-span-1",
-    //     icon: <IconClipboardCopy className="h-4 w-4 text-neutral-500" />,
-    //   },
+      {
+        title: "Order an uber",
+        description: (
+          <span className="text-sm">
+            Experience real convenience with ordering an Uber ride.
+          </span>
+        ),
+        header: <SkeletonUber />,
+        className: "md:col-span-1",
+        icon: <IconCar className="h-4 w-4 text-neutral-500" />,
+      },
     //   {
     //     title: "Automated Proofreading",
     //     description: (
